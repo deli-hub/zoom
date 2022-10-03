@@ -23,15 +23,42 @@ const wss = new WebSocket.Server({ server });
 
 // wss.on("connection", handleConnnection);
 
+function onSocketClose() {
+    console.log("Disconnected from the Browser ❌")
+}
+
+function onSocketMessage(message) {
+//    console.log(message.toString('utf8'));
+   console.log(message);
+}
+
+const sockets = [];
+
 wss.on("connection", (socket) => {
+    // socket connted
+    sockets.push(socket);
+    socket["nickname"] = "anonymous";
     console.log("Connected to Browser ✅");
     // socket의 이벤트는 양방향이다. (브라우저가 종료되든 서버가 종료되든 서로 알 수 있음)
-    socket.on("close", () => console.log("Disconnected from the Browser ❌"));
-    socket.on("message", (message) => {
-        console.log(message.toString('utf8'));
+    socket.on("close", onSocketClose);
+    socket.on("message", (msg) => {
+        const message = JSON.parse(msg.toString("utf8"));
+        console.log(message);
+        switch (message.type) {
+            case "new_message":
+                sockets.forEach((aSocket) => aSocket.send(`${socket.nickname}: ${message.payload}`));
+                break;
+            case "nickname":
+                socket["nickname"] = message.payload;
+                break; 
+            // case "test":
+            //     sockets.forEach((aSocket) => aSocket.send(`${socket.test}: ${message.payload}`));
+            //     break;
+        }
+        
     });
     // wss가 아닌 socket에 있는 메소드를 사용한다.
-    socket.send("hello!!!");
+    // socket.send("hello!!!");
 });
 
 server.listen(3000, handleListen);
