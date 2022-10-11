@@ -27,15 +27,22 @@ const wsServer = SocketIO(httpServer);
 
 // wss.on("connection", handleConnnection);
 
-wsServer.on("connection", socket => {
-    socket.on("enter_room", (msg, done)=> {
-        console.log(msg);
-        setTimeout(() => {
-            /* 두번째 인자로 받은 done(); 함수를 실행시킨다.
-                callback 함수 (이름은 상관 없음)
-            */
-            done("hello from the backend");
-        }, 10000);
+wsServer.on("connection", (socket) => {
+    // like middleware
+    socket.onAny((event) => {
+        console.log(`Socket Event: ${event}`);
+    })
+    
+    socket.on("enter_room", (roomName, done)=> {    
+        //  join/leave 모두 가능함
+        socket.join(roomName);
+        done();
+        // setTimeout(() => {
+        //     /* 두번째 인자로 받은 done(); 함수를 실행시킨다.
+        //         callback 함수 (이름은 상관 없음)
+        //     */
+        //     done("hello from the backend");
+        // }, 10000);
     });
 });
 

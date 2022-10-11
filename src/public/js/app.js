@@ -67,11 +67,19 @@ socket에서 object가 아닌 string으로 굳이 변환을 해서 보내주는 
 
 const socket = io();
 
-const welcom = document.getElementById("welcome");
+const welcome = document.getElementById("welcome");
 const form = welcome.querySelector("form");
+const room = document.getElementById("room");
 
-function backendDone(msg){
-    console.log(`The backend says: `, msg);   
+room.hidden = true;
+
+let roomName = "";
+
+function showRoom(){
+    welcome.hidden = true;
+    room.hidden = false;
+    const h3 = room.querySelector("h3");
+    h3.innerText = `Room '${roomName}'`;
 }
 
 function handleRoomSubmit(event){
@@ -84,7 +92,8 @@ function handleRoomSubmit(event){
      * 2nd argu : parameter
      * 3rd argu : callback function
      * */ 
-    socket.emit("enter_room", { payload:input.value }, backendDone);
+    socket.emit("enter_room", { payload:input.value }, showRoom);
+    roomName = input.value;
     input.value = "";
 }
 
